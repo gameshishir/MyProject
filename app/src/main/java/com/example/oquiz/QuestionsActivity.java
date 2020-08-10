@@ -51,8 +51,7 @@ public class QuestionsActivity extends AppCompatActivity {
     private List<QuestionModel> list;
     private int position = 0;
     private int score = 0;
-    private String category;
-    private int setNo;
+    private String setId;
     private Dialog loadingDialog;
 
     private List<QuestionModel> bookmarksList;
@@ -94,8 +93,7 @@ public class QuestionsActivity extends AppCompatActivity {
             }
         });
 
-        category = getIntent().getStringExtra("category");
-        setNo = getIntent().getIntExtra("setNo" ,1);
+        setId = getIntent().getStringExtra("setId" );
 
         loadingDialog = new Dialog(this);
         loadingDialog.setContentView(R.layout.loading);
@@ -107,11 +105,20 @@ public class QuestionsActivity extends AppCompatActivity {
         list = new ArrayList<>();
 
         loadingDialog.show();
-        myRef.child("SETS").child(category).child("questions").orderByChild("setNo").equalTo(setNo).addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef
+                .child("SETS").child(setId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-                    list.add(snapshot.getValue(QuestionModel.class));
+                for(DataSnapshot snapshot1 : dataSnapshot.getChildren()){
+                    String id = snapshot1.getKey();
+                    String question = snapshot1.child("question").getValue().toString();
+                    String a = snapshot1.child("optionA").getValue().toString();
+                    String b = snapshot1.child("optionB").getValue().toString();
+                    String c = snapshot1.child("optionC").getValue().toString();
+                    String d = snapshot1.child("optionD").getValue().toString();
+                    String correctANS = snapshot1.child("correctANS").getValue().toString();
+
+                    list.add(new QuestionModel(id,question,a,b,c,d,correctANS,setId));
                 }
                 if (list.size() > 0){
                     for (int i = 0; i < 4; i++){
@@ -141,6 +148,7 @@ public class QuestionsActivity extends AppCompatActivity {
                                 return;
                             }
                             count = 0;
+                            playAnim(question,0,list.get(position).getQuestion());
 
                         }
                     });
@@ -148,10 +156,10 @@ public class QuestionsActivity extends AppCompatActivity {
                         @Override
                         public void onClick(View v) {
                             String body = list.get(position).getQuestion() + "\n" +
-                                    list.get(position).getOptionA() +  "\n" +
-                                    list.get(position).getOptionB() +  "\n" +
-                                    list.get(position).getOptionC() +  "\n" +
-                                    list.get(position).getOptionD();
+                                    list.get(position).getA() +  "\n" +
+                                    list.get(position).getB() +  "\n" +
+                                    list.get(position).getC() +  "\n" +
+                                    list.get(position).getD();
                             Intent shareIntent = new Intent(Intent.ACTION_SEND);
                             shareIntent.setType("text/plain");
                             shareIntent.putExtra(Intent.EXTRA_SUBJECT,"ONLINE QUIZ");
@@ -175,10 +183,6 @@ public class QuestionsActivity extends AppCompatActivity {
             }
         });
 
-
-
-
-
     }
 
     @Override
@@ -188,7 +192,9 @@ public class QuestionsActivity extends AppCompatActivity {
     }
 
     private void playAnim(final View view, final int value, final String data){
-
+        for (int i = 0; i < 4; i++){
+            optionsContainer.getChildAt(i).setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#989898")));
+        }
         view.animate().alpha(value).scaleX(value).scaleY(value).setDuration(500).setStartDelay(100)
                 .setInterpolator(new DecelerateInterpolator()).setListener(new Animator.AnimatorListener() {
             @Override
@@ -197,13 +203,13 @@ public class QuestionsActivity extends AppCompatActivity {
                 if (value == 0 && count < 4 ){
                     String option = "";
                     if (count == 0){
-                        option = list.get(position).getOptionA();
+                        option = list.get(position).getA();
                     }else if (count == 1){
-                        option = list.get(position).getOptionB();
+                        option = list.get(position).getB();
                     }else if (count == 2){
-                        option = list.get(position).getOptionC();
+                        option = list.get(position).getC();
                     }else if (count == 3){
-                        option = list.get(position).getOptionD();
+                        option = list.get(position).getD();
                     }
                         playAnim(optionsContainer.getChildAt(count),0,option);
                     count++;
@@ -227,8 +233,9 @@ public class QuestionsActivity extends AppCompatActivity {
                         ((Button) view).setText(data);
                     }
                     view.setTag(data);
-
                     playAnim(view,1,data);
+                }else {
+                    enableOption(true);
                 }
 
             }
@@ -249,14 +256,14 @@ public class QuestionsActivity extends AppCompatActivity {
         enableOption(false);
         nextBtn.setEnabled(true);
         nextBtn.setAlpha(1);
-        if (selectedOption.getText().toString().equals(list.get(position).getCorrectANS())){
+        if (selectedOption.getText().toString().equals(list.get(position).getAnswer())){
             //correct
             score++;
             selectedOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4caf50")));
         }else {
             ///incorrect
             selectedOption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#ff0000")));
-            Button correctoption = (Button)  optionsContainer.findViewWithTag(list.get(position).getCorrectANS());
+            Button correctoption = (Button)  optionsContainer.findViewWithTag(list.get(position).getAnswer());
             correctoption.setBackgroundTintList(ColorStateList.valueOf(Color.parseColor("#4caf50")));
             }
         }
@@ -289,8 +296,8 @@ public class QuestionsActivity extends AppCompatActivity {
         int i = 0;
         for (QuestionModel model : bookmarksList){
             if (model.getQuestion().equals(list.get(position).getQuestion())
-                    && model.getCorrectANS().equals(list.get(position).getCorrectANS())
-            && model.getSetNo() == list.get(position).getSetNo()){
+                    && model.getAnswer().equals(list.get(position).getAnswer())
+            && model.getSet().equals(list.get(position).getSet())){
                 matched = true;
                 matchedQuestionPosition = i;
             }

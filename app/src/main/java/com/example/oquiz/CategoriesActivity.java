@@ -28,7 +28,7 @@ public class CategoriesActivity extends AppCompatActivity {
     private Dialog loadingDialog;
 
     private RecyclerView recyclerView;
-    private List<CategoryModel> list;
+    public static List<CategoryModel> list;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +62,18 @@ public class CategoriesActivity extends AppCompatActivity {
         myRef.child("Categories").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()){
-                    list.add(dataSnapshot1.getValue(CategoryModel.class));
+                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+
+                    List<String> sets = new ArrayList<>();
+                    for (DataSnapshot dataSnapshot2 : dataSnapshot1.child("sets").getChildren()){
+                        sets.add(dataSnapshot2.getKey());
+                    }
+
+                    list.add(new CategoryModel(dataSnapshot1.child("name").getValue().toString(),
+                            sets,
+                            dataSnapshot1.child("url").getValue().toString(),
+                            dataSnapshot1.getKey()
+                    ));
 
                 }
                 adapter.notifyDataSetChanged();

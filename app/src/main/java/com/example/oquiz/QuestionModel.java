@@ -2,77 +2,80 @@ package com.example.oquiz;
 
 public class QuestionModel {
 
-    private String question,optionA,optionB,optionC,optionD,correctANS;
-    private int setNo;
+    private String id,question,A,B,C,D,answer,set;
 
-    public QuestionModel(){
-        //for firebase
+    public QuestionModel(String id, String question, String a, String b, String c, String d, String answer, String set) {
+        this.id = id;
+        this.question = question;
+        A = a;
+        B = b;
+        C = c;
+        D = d;
+        this.answer = answer;
+        this.set = set;
     }
 
-    public QuestionModel(String question, String optionA, String optionB, String optionC, String optionD, String correctANS,int setNo) {
-        this.question = question;
-        this.setNo = setNo;
-        this.optionA = optionA;
-        this.optionB = optionB;
-        this.optionC = optionC;
-        this.optionD = optionD;
-        this.correctANS = correctANS;
+    public String getId() {
+        return id;
+    }
 
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getQuestion() {
         return question;
     }
 
-    public void setQuestion(String question) { this.question = question;
+    public void setQuestion(String question) {
+        this.question = question;
     }
 
-    public String getOptionA() {
-        return optionA;
+    public String getA() {
+        return A;
     }
 
-    public void setOptionA(String optionA) {
-        this.optionA = optionA;
+    public void setA(String a) {
+        A = a;
     }
 
-    public String getOptionB() {
-        return optionB;
+    public String getB() {
+        return B;
     }
 
-    public void setOptionB(String optionB) {
-        this.optionB = optionB;
+    public void setB(String b) {
+        B = b;
     }
 
-    public String getOptionC() {
-        return optionC;
+    public String getC() {
+        return C;
     }
 
-    public void setOptionC(String optionC) {
-        this.optionC = optionC;
+    public void setC(String c) {
+        C = c;
     }
 
-    public String getOptionD() {
-        return optionD;
+    public String getD() {
+        return D;
     }
 
-    public void setOptionD(String optionD) {
-        this.optionD = optionD;
+    public void setD(String d) {
+        D = d;
     }
 
-    public String getCorrectANS() {
-        return correctANS;
+    public String getAnswer() {
+        return answer;
     }
 
-    public void setCorrectANS(String correctANS) {
-        this.correctANS = correctANS;
+    public void setAnswer(String answer) {
+        this.answer = answer;
     }
 
-    public int getSetNo() {
-        return setNo;
+    public String getSet() {
+        return set;
     }
 
-    public void setSetNo(int setNo) {
-        this.setNo = setNo;
+    public void setSet(String set) {
+        this.set = set;
     }
-
 }
